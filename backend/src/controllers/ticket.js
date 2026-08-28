@@ -1,5 +1,6 @@
 const Ticket = require("../models/tickets.js");
 const Note = require("../models/notes.js");
+const User = require("../models/user.js")
 const { triageTicket, FALLBACK_TRIAGE } = require("../services/aiTriage.js");
 
 const generateTicketId = require("../../utils/ticketId");
@@ -22,7 +23,14 @@ module.exports.createTickets = async (req, res) => {
             customerEmail: customer_email,
             subject: subject,
             description: description,
-            ...triage
+            ...triage,
+            team:
+                triage.category === "Billing" ? "Billing" : 
+                triage.category === "Technical" ? "Technical" :
+                triage.category === "Account" ? "Account" :
+                triage.category === "Shipping" ? "Shipping" :
+                triage.category === "Product" ? "Product":
+                "General",            
         });
         await newTicket.save();
         res.status(201).json({
@@ -30,7 +38,9 @@ module.exports.createTickets = async (req, res) => {
             created_at: newTicket.created_at,
             category: newTicket.category,
             priority: newTicket.priority,
-            sentiment: newTicket.sentiment
+            sentiment: newTicket.sentiment,
+            team: newTicket.team,
+            assignedTo:newTicket.assignedTo
         });
 
     } catch (err) {
@@ -45,7 +55,9 @@ module.exports.getTickets = async (req, res) => {
     try {
         const { status, search } = req.query;
         const filters = {};
-
+        if (req.user.role === "agent") {
+    filters.assignedTo = req.user.userId;
+}
         if (status) filters.status = status;
         if (search) {
             const searchPattern = new RegExp(search, "i");
@@ -58,7 +70,7 @@ module.exports.getTickets = async (req, res) => {
             ];
         }
 
-        const tickets = await Ticket.find(filters).sort({ created_at: -1 });
+        const tickets = await Ticket.find(filters).populate("assignedTo", "name email role team").sort({ created_at: -1 });
         
         const result = tickets.map(ticket => ({
             ticket_id: ticket.ticketId,
@@ -70,10 +82,19 @@ module.exports.getTickets = async (req, res) => {
             category: ticket.category,
             priority: ticket.priority,
             sentiment: ticket.sentiment,
-            created_at: ticket.created_at
+            
+            team: ticket.team,
+            assignedTo: ticket.assignedTo
+                 ? {
+                    id: ticket.assignedTo._id,
+                    name: ticket.assignedTo.name,
+                    email: ticket.assignedTo.email
+                }
+                : null,
+            created_at: ticket.created_at,
         }));
 
-        res.status(201).json(result);
+        res.status(200).json(result);
     } catch (err) {
         console.error("Error finding the ticket.", err);
 
@@ -86,7 +107,20 @@ module.exports.getTickets = async (req, res) => {
 module.exports.getTicketsId = async (req, res) => {
     try {
         const { ticketId } = req.params;
-        const ticket = await Ticket.findOne({ticketId})
+
+        const filter = {
+            ticketId
+        };
+
+        if (req.user.role === "agent") {
+            filter.assignedTo = req.user.userId;
+        }
+
+        const ticket = await Ticket.findOne(filter).populate(
+            "assignedTo",
+            "name email role team"
+        );
+
         if (!ticket) {
             return res.status(404).json({
                 message: "Ticket not found"
@@ -103,7 +137,16 @@ module.exports.getTicketsId = async (req, res) => {
             status: ticket.status,
             category: ticket.category,
             priority: ticket.priority,
-            sentiment: ticket.sentiment,
+               sentiment: ticket.sentiment,
+            team: ticket.team,
+
+            assignedTo: ticket.assignedTo
+                ? {
+                    id: ticket.assignedTo._id,
+                    name: ticket.assignedTo.name,
+                    email: ticket.assignedTo.email
+                }
+                : null,
             notes: notes
         });
     } catch (err) {
@@ -118,14 +161,51 @@ module.exports.getTicketsId = async (req, res) => {
 module.exports.updateTicketsId = async (req, res) => {
     try {
         const { ticketId } = req.params;
-        const { status, notes } = req.body;
-        const ticket = await Ticket.findOne({ ticketId });
+        const { status, assignedTo, notes } = req.body;
+
+        const filter = {
+            ticketId
+        };
+
+        if (req.user.role === "agent") {
+            filter.assignedTo = req.user.userId;
+        }
+
+        const ticket = await Ticket.findOne(filter);
+
         if (!ticket) {
             return res.status(404).json({
                 message: "Ticket not found"
             });
-        };
-        
+        }
+        if (assignedTo) {
+             if (req.user.role !== "admin") {
+        return res.status(403).json({
+            message: "Only admins can assign tickets"
+        });
+    }
+    const agent = await User.findById(assignedTo);
+
+    if (!agent) {
+        return res.status(404).json({
+            message: "Agent not found"
+        });
+    }
+
+    if (agent.role !== "agent") {
+        return res.status(400).json({
+            message: "Ticket can only be assigned to an agent"
+        });
+    }
+
+    if (agent.team !== ticket.team) {
+        return res.status(400).json({
+            message: "Agent must belong to the same team as the ticket"
+        });
+    }
+
+    ticket.assignedTo = agent._id;
+}
         if (status) {
             ticket.status = status;
         }
@@ -143,7 +223,10 @@ module.exports.updateTicketsId = async (req, res) => {
             updatedAt: ticket.updated_at,
             category: ticket.category,
             priority: ticket.priority,
-            sentiment: ticket.sentiment
+            sentiment: ticket.sentiment,
+            team: ticket.team,
+            assignedTo: ticket.assignedTo,
+            status: ticket.status
         })
 
     } catch (err) {

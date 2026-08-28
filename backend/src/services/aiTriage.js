@@ -1,11 +1,15 @@
+require("dotenv").config();
+
+
 const ALLOWED_VALUES = {
     category: ["Billing", "Technical", "Account", "Shipping", "Product", "Other"],
     priority: ["Low", "Medium", "High"],
     sentiment: ["Positive", "Neutral", "Negative"]
 };
-
-const OLLAMA_BASE_URL = (process.env.OLLAMA_BASE_URL || "http://localhost:11434").replace(/\/$/, "");
-
+const OLLAMA_BASE_URL = (
+    process.env.OLLAMA_BASE_URL ||
+    "http://localhost:11434"
+).replace(/\/$/, "");
 const buildPrompt = (subject, description) => `You are a customer support ticket classification system.
 
 Analyze the following support ticket. Classify it into exactly one category, one priority, and one sentiment.
@@ -49,14 +53,16 @@ const validateTriage = (triage) => {
 };
 
 module.exports.triageTicket = async (subject, description) => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-
+    const controller = new AbortController()
+    const timeout = setTimeout(
+        () => controller.abort(), 30000
+    );
     try {
         const response = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             signal: controller.signal,
+
             body: JSON.stringify({
                 model: "llama3.2:3b",
                 prompt: buildPrompt(subject, description),
@@ -64,28 +70,27 @@ module.exports.triageTicket = async (subject, description) => {
                 format: "json"
             })
         });
-
         if (!response.ok) {
-            throw new Error(`Ollama request failed with status ${response.status}`);
-        }
+            throw new Error(
+                `Ollama request failed with status ${response.status}`
+            )
+        };
+        const payload = await response.json()
 
-        const payload = await response.json();
         if (!payload.response || typeof payload.response !== "string") {
-            throw new Error("Ollama response is missing generated text");
+             throw new Error(
+                "Ollama response is missing generated text"
+            );
         }
 
-        let triage;
-        try {
-            triage = JSON.parse(payload.response.trim());
-        } catch {
-            throw new Error("Ollama response is not valid JSON");
-        }
-
+        const triage = JSON.parse(
+            payload.response.trim()
+        );
         return validateTriage(triage);
     } finally {
         clearTimeout(timeout);
     }
-};
+}
 
 module.exports.FALLBACK_TRIAGE = {
     category: "Other",

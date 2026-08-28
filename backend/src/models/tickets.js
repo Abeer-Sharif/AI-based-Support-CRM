@@ -36,17 +36,35 @@ const ticketSchema = new mongoose.Schema(
 
         category: {
             type: String,
-            enum: ["Billing", "Technical", "Account", "Shipping", "Product", "Other"]
+            enum: ["Billing", "Technical", "Account", "Shipping", "Product", "Other"],
+            default: "Other"
+        },
+        team: {
+            type: String,
+            enum: [
+                "Billing",
+                "Technical",
+                "Account",
+                "General"
+            ],
+            default: "General"
+        },
+        assignedTo: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null
         },
 
         priority: {
             type: String,
-            enum: ["Low", "Medium", "High"]
+            enum: ["Low", "Medium", "High"],
+            default:"Medium"
         },
 
         sentiment: {
             type: String,
-            enum: ["Positive", "Neutral", "Negative"]
+            enum: ["Positive", "Neutral", "Negative"],
+            default:"Neutral"
         }
     },
     {

@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
 
         team: {
             type: String,
-            enum: ["Billing", "Technical", "Account", "General"],
+            enum: ["Billing", "Technical", "Account", "General","Shipping","Product"],
             default: "General"
         }
     },

@@ -22,6 +22,8 @@ const updateTicketSchema = Joi.object({
     status: Joi.string()
         .valid("Open", "In Progress", "Closed")
         .optional(),
+    assignedTo: Joi.string()
+        .optional(),
 
     notes: Joi.string().optional()
 });
@@ -48,10 +50,20 @@ const loginSchema = Joi.object({
     password: Joi.string()
         .required()
 });
+const updateUserSchema = Joi.object({
+    role: Joi.string()
+        .valid("admin", "agent")
+        .optional(),
+
+    team: Joi.string()
+        .valid("Billing", "Technical", "Account", "General","Shipping","Product")
+        .optional()
+}).or("role", "team");
 
 module.exports = {
     ticketSchema,
     updateTicketSchema,
     userSchema,
-    loginSchema
+    loginSchema,
+    updateUserSchema
 };

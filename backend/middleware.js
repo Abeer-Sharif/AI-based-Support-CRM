@@ -2,7 +2,8 @@ const {
     ticketSchema,
     updateTicketSchema,
     userSchema,
-    loginSchema
+    loginSchema,
+    updateUserSchema
 } = require("./schema");
 
 module.exports.validateTicket = (req, res, next) => {
@@ -45,6 +46,18 @@ module.exports.validateUser = (req, res, next) => {
 module.exports.validateLogin = (req, res, next) => {
 
     const { error } = loginSchema.validate(req.body);
+
+    if (error) {
+        return res.status(400).json({
+            message: error.details[0].message
+        });
+    }
+
+    next();
+};
+
+module.exports.validateUpdateUser = (req, res, next) => {
+    const { error } = updateUserSchema.validate(req.body);
 
     if (error) {
         return res.status(400).json({

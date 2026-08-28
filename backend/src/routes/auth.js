@@ -5,14 +5,16 @@ const router = express.Router();
 const {
     register,
     login,
-    updateUserRole
+    updateUserRole,
+    getAgents
 } = require("../controllers/auth");
 
 const {
     validateUser,
     validateLogin,
     isLoggedIn,
-    isAdmin
+    isAdmin,
+    validateUpdateUser
 } = require("../../middleware");
 
 
@@ -32,7 +34,15 @@ router.put(
     "/users/:name",
     isLoggedIn,
     isAdmin,
+    validateUpdateUser,
     updateUserRole
+);
+
+router.get(
+    "/agents",
+    isLoggedIn,
+    isAdmin,
+    getAgents
 );
 
 module.exports = router;

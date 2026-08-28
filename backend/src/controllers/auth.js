@@ -98,7 +98,7 @@ module.exports.login = async (req, res) => {
 module.exports.updateUserRole = async (req, res) => {
     try {
         const { name } = req.params;
-        const { role } = req.body;
+        const { role, team } = req.body;
 
         const user = await User.findOne({ name });
 
@@ -108,16 +108,55 @@ module.exports.updateUserRole = async (req, res) => {
             });
         }
 
-        user.role = role;
+        if (role) {
+            user.role = role;
+        }
+
+        if (team) {
+            user.team = team;
+        }
 
         await user.save();
 
         res.status(200).json({
-            message: "Role updated successfully"
+            message: "User updated successfully",
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                team: user.team
+            }
         });
 
     } catch (err) {
-        console.error("Error updating role:", err);
+        console.error("Error updating user:", err);
+
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};
+
+module.exports.getAgents = async (req, res) => {
+    try {
+        const { team } = req.query;
+
+        const filter = {
+            role: "agent"
+        };
+
+        if (team) {
+            filter.team = team;
+        }
+
+        const agents = await User.find(filter)
+            .select("_id name email team");
+
+        res.status(200).json(agents);
+
+    } catch (err) {
+        console.error("Error getting agents:", err);
 
         res.status(500).json({
             message: "Internal server error"
