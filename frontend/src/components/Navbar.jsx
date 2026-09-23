@@ -1,35 +1,162 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext.jsx";
 
-export default function AppNavbar() {
-  const { isAuthenticated, session, logout } = useAuth();
+export default function Navbar() {
+  const { session, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+
+    navigate("/login", {
+      replace: true
+    });
   };
 
   return (
-    <nav className="navbar navbar-expand-sm navbar-dark app-navbar">
-      <div className="container">
-        <NavLink className="navbar-brand fw-semibold" to="/">SupportDesk</NavLink>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span className="navbar-toggler-icon" />
-        </button>
-        <div className="collapse navbar-collapse" id="mainNav">
-          <div className="navbar-nav ms-auto align-items-sm-center gap-sm-2">
-            <NavLink end className="nav-link" to="/">Tickets</NavLink>
-            {isAuthenticated ? <>
-              <span className="navbar-text account-indicator mt-2 mt-sm-0">{session.email}</span>
-              <button className="btn btn-outline-light btn-sm px-3" type="button" onClick={handleLogout}>Logout</button>
-            </> : <>
-              <NavLink className="nav-link" to="/login">Login</NavLink>
-              <NavLink className="nav-link" to="/register">Register</NavLink>
-            </>}
+    <>
+      {/* DESKTOP SIDEBAR */}
+      <aside
+        className="nav-rail"
+        aria-label="Primary navigation"
+      >
+        <NavLink
+          to="/"
+          className="rail-logo"
+          title="SupportDesk"
+        >
+          S
+        </NavLink>
+
+        <nav className="rail-links">
+
+          {/* Tickets */}
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `rail-link ${
+                isActive ? "active" : ""
+              }`
+            }
+            title="Tickets"
+          >
+            <span>▤</span>
+
+            <span className="rail-label">
+              Tickets
+            </span>
+          </NavLink>
+
+
+          {/* Create Ticket */}
+          <NavLink
+            to="/tickets/new"
+            className={({ isActive }) =>
+              `rail-link ${
+                isActive ? "active" : ""
+              }`
+            }
+            title="Create ticket"
+          >
+            <span>＋</span>
+
+            <span className="rail-label">
+              Create
+            </span>
+          </NavLink>
+
+
+          {/* Admin Only */}
+          {isAdmin && (
+            <NavLink
+              to="/agents"
+              className={({ isActive }) =>
+                `rail-link ${
+                  isActive ? "active" : ""
+                }`
+              }
+              title="Agents"
+            >
+              <span>👥</span>
+
+              <span className="rail-label">
+                Agents
+              </span>
+            </NavLink>
+          )}
+
+        </nav>
+
+
+        {/* BOTTOM SECTION */}
+        <div className="rail-bottom">
+
+          <div
+            className="rail-user"
+            title={session?.email || ""}
+          >
+            {isAdmin ? "A" : "G"}
           </div>
+
+          <button
+            type="button"
+            className="rail-link rail-button"
+            onClick={handleLogout}
+            title="Logout"
+          >
+            <span>↪</span>
+
+            <span className="rail-label">
+              Logout
+            </span>
+          </button>
+
         </div>
-      </div>
-    </nav>
+      </aside>
+
+
+      {/* MOBILE NAVBAR */}
+      <header className="mobile-nav">
+
+        <NavLink
+          to="/"
+          className="mobile-brand"
+        >
+          SupportDesk
+        </NavLink>
+
+        <div className="mobile-nav-actions">
+
+          {/* Admin Agents */}
+          {isAdmin && (
+            <NavLink
+              to="/agents"
+              className="mobile-new-ticket"
+            >
+              Agents
+            </NavLink>
+          )}
+
+          {/* Create Ticket */}
+          <NavLink
+            to="/tickets/new"
+            className="mobile-new-ticket"
+          >
+            + Ticket
+          </NavLink>
+
+          {/* Logout */}
+          <button
+            type="button"
+            className="mobile-logout"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+
+        </div>
+
+      </header>
+    </>
   );
 }

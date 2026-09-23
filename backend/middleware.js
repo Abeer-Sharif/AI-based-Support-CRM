@@ -6,6 +6,8 @@ const {
     updateUserSchema
 } = require("./schema");
 
+const ratelimit = require("express-rate-limit")
+
 module.exports.validateTicket = (req, res, next) => {
     const { error } = ticketSchema.validate(req.body);
 
@@ -108,3 +110,20 @@ module.exports.isAdmin = (req, res, next) => {
 
     next();
 };
+
+module.exports.loginLimiter = ratelimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    
+    message: {
+        message: "Too many login attempts. Please try again later."
+    }
+})
+
+module.exports.registerLimiter = ratelimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    message: {
+        message: "Too many register attempts. Please try again later."
+    }
+})

@@ -1,24 +1,160 @@
-import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../services/authApi';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { authApi } from "../services/authApi.js";
+import "./Login.css";
 
 export default function Register() {
-  const { isAuthenticated } = useAuth();
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
-  const [validated, setValidated] = useState(false);
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: ""
+  });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] =
+    useState(false);
+
   const navigate = useNavigate();
-  if (isAuthenticated) return <Navigate to="/" replace />;
 
-  const submit = async (event) => {
-    event.preventDefault(); setValidated(true);
-    if (!event.currentTarget.checkValidity()) return;
-    setSubmitting(true); setError('');
-    try { await authApi.register(form); navigate('/login', { state: { message: 'Registration complete. You can now sign in.' } }); } catch (err) { setError(err.message); } finally { setSubmitting(false); }
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((current) => ({
+      ...current,
+      [name]: value
+    }));
   };
-  const setField = (event) => setForm({ ...form, [event.target.name]: event.target.value });
 
-  return <section className="auth-page"><div className="mb-4"><p className="eyebrow mb-1">SupportDesk</p><h1 className="h2 mb-0">Create account</h1></div><form className={`card shadow-sm border-0 ${validated ? 'was-validated' : ''}`} noValidate onSubmit={submit}><div className="card-body p-4"><>{error && <div className="alert alert-danger">{error}</div>}</><div className="mb-3"><label className="form-label" htmlFor="name">Name</label><input className="form-control" id="name" name="name" value={form.name} onChange={setField} required /><div className="invalid-feedback">Enter your name.</div></div><div className="mb-3"><label className="form-label" htmlFor="email">Email</label><input className="form-control" id="email" name="email" type="email" value={form.email} onChange={setField} required /><div className="invalid-feedback">Enter a valid email address.</div></div><div className="mb-4"><label className="form-label" htmlFor="password">Password</label><input className="form-control" id="password" name="password" type="password" minLength="6" value={form.password} onChange={setField} required /><div className="invalid-feedback">Use at least 6 characters.</div></div><button className="btn btn-primary w-100" type="submit" disabled={submitting}>{submitting ? 'Creating account...' : 'Register'}</button><p className="text-center text-secondary mt-3 mb-0">Already registered? <Link to="/login">Login</Link></p></div></form></section>;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!event.currentTarget.checkValidity()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      await authApi.register(form);
+
+      navigate("/login", {
+        replace: true
+      });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <main className="auth-page">
+      <section className="auth-brand-panel">
+        <div className="auth-brand-copy">
+          <span className="brand-mark">S</span>
+
+          <p className="auth-eyebrow">
+            SUPPORTDESK
+          </p>
+
+          <h1>
+            One place for every
+            <br />
+            support request.
+          </h1>
+
+          <p>
+            New accounts are created as agents in the
+            General team. An admin can update role and
+            team later.
+          </p>
+        </div>
+      </section>
+
+      <section className="auth-form-panel">
+        <div className="auth-card">
+          <div className="auth-mobile-brand">
+            <span className="brand-mark">S</span>
+            <strong>SupportDesk</strong>
+          </div>
+
+          <p className="auth-eyebrow">
+            CREATE ACCOUNT
+          </p>
+
+          <h2>Register as an agent</h2>
+
+          <p className="auth-subtitle">
+            Set up your account to access the support CRM.
+          </p>
+
+          {error && (
+            <div className="auth-alert">
+              {error}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="auth-form"
+          >
+            <label>
+              Full name
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Your name"
+                minLength="2"
+                required
+              />
+            </label>
+
+            <label>
+              Email address
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                autoComplete="email"
+                required
+              />
+            </label>
+
+            <label>
+              Password
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Minimum 6 characters"
+                minLength="6"
+                autoComplete="new-password"
+                required
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="auth-primary-button"
+              disabled={submitting}
+            >
+              {submitting
+                ? "Creating account..."
+                : "Create account"}
+            </button>
+          </form>
+
+          <p className="auth-switch">
+            Already registered?{" "}
+            <Link to="/login">Sign in</Link>
+          </p>
+        </div>
+      </section>
+    </main>
+  );
 }

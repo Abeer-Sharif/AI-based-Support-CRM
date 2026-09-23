@@ -14,18 +14,22 @@ const {
     validateLogin,
     isLoggedIn,
     isAdmin,
-    validateUpdateUser
+    validateUpdateUser,
+    loginLimiter,
+    registerLimiter
 } = require("../../middleware");
 
 
 router.post(
     "/register",
+    registerLimiter,
     validateUser,
     register
 );
 
 router.post(
     "/login",
+    loginLimiter,
     validateLogin,
     login
 );

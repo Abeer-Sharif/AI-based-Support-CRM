@@ -1,29 +1,167 @@
-import { useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { authApi } from '../services/authApi';
+import { useState } from "react";
+import {
+  Link,
+  useLocation,
+  useNavigate
+} from "react-router-dom";
+
+import { authApi } from "../services/authApi.js";
+import { useAuth } from "../context/AuthContext.jsx";
+import "./Login.css";
 
 export default function Login() {
-  const { login, isAuthenticated } = useAuth();
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [validated, setValidated] = useState(false);
-  const [error, setError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const location = useLocation();
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] =
+    useState(false);
+
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  const handleChange = (event) => {
+    const { name, value } = event.target;
 
-  const submit = async (event) => {
-    event.preventDefault(); setValidated(true);
-    if (!event.currentTarget.checkValidity()) return;
-    setSubmitting(true); setError('');
-    try {
-      const response = await authApi.login(form);
-      login({ token: response.token, email: form.email });
-      navigate(location.state?.from || '/', { replace: true });
-    } catch (err) { setError(err.message); } finally { setSubmitting(false); }
+    setForm((current) => ({
+      ...current,
+      [name]: value
+    }));
   };
 
-  return <section className="auth-page"><div className="mb-4"><p className="eyebrow mb-1">SupportDesk</p><h1 className="h2 mb-0">Sign in</h1></div>{location.state?.message && <div className="alert alert-success">{location.state.message}</div>}<form className={`card shadow-sm border-0 ${validated ? 'was-validated' : ''}`} noValidate onSubmit={submit}><div className="card-body p-4"><>{error && <div className="alert alert-danger">{error}</div>}</><div className="mb-3"><label className="form-label" htmlFor="email">Email</label><input className="form-control" id="email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} required /><div className="invalid-feedback">Enter a valid email address.</div></div><div className="mb-4"><label className="form-label" htmlFor="password">Password</label><input className="form-control" id="password" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required /><div className="invalid-feedback">Enter your password.</div></div><button className="btn btn-primary w-100" type="submit" disabled={submitting}>{submitting ? 'Signing in...' : 'Login'}</button><p className="text-center text-secondary mt-3 mb-0">Need an account? <Link to="/register">Register</Link></p></div></form></section>;
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!event.currentTarget.checkValidity()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const response = await authApi.login(form);
+
+      login({
+        token: response.token,
+        email: form.email
+      });
+
+      navigate(
+        location.state?.from || "/",
+        { replace: true }
+      );
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <main className="auth-page">
+      <section className="auth-brand-panel">
+        <div className="auth-brand-copy">
+          <span className="brand-mark">S</span>
+
+          <p className="auth-eyebrow">
+            SUPPORTDESK
+          </p>
+
+          <h1>
+            Customer support,
+            <br />
+            without the chaos.
+          </h1>
+
+          <p>
+            Manage tickets, route issues by AI triage,
+            and keep your support team focused.
+          </p>
+
+          <div className="auth-features">
+            <span>AI category detection</span>
+            <span>Priority & sentiment triage</span>
+            <span>Team-based assignment</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="auth-form-panel">
+        <div className="auth-card">
+          <div className="auth-mobile-brand">
+            <span className="brand-mark">S</span>
+            <strong>SupportDesk</strong>
+          </div>
+
+          <p className="auth-eyebrow">
+            WELCOME BACK
+          </p>
+
+          <h2>Sign in to your workspace</h2>
+
+          <p className="auth-subtitle">
+            Enter your account credentials to continue.
+          </p>
+
+          {error && (
+            <div className="auth-alert">
+              {error}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="auth-form"
+          >
+            <label>
+              Email address
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                autoComplete="email"
+                required
+              />
+            </label>
+
+            <label>
+              Password
+              <input
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                minLength="6"
+                required
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="auth-primary-button"
+              disabled={submitting}
+            >
+              {submitting
+                ? "Signing in..."
+                : "Sign in"}
+            </button>
+          </form>
+
+          <p className="auth-switch">
+            Need an account?{" "}
+            <Link to="/register">
+              Create account
+            </Link>
+          </p>
+        </div>
+      </section>
+    </main>
+  );
 }

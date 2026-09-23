@@ -45,7 +45,9 @@ const ticketSchema = new mongoose.Schema(
                 "Billing",
                 "Technical",
                 "Account",
-                "General"
+                "General",
+                "Shipping",
+                "Product",
             ],
             default: "General"
         },
@@ -54,7 +56,11 @@ const ticketSchema = new mongoose.Schema(
             ref: "User",
             default: null
         },
-
+        createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+},
         priority: {
             type: String,
             enum: ["Low", "Medium", "High"],

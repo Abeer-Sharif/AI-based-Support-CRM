@@ -1,13 +1,21 @@
-export default function SearchBar({ value, onChange }) {
+export default function SearchBar({
+  value,
+  onChange
+}) {
   return (
-    <div className="input-group">
-      <span className="input-group-text bg-white">Search</span>
+    <div className="search-wrap">
+      <span className="search-icon" aria-hidden="true">
+        ⌕
+      </span>
+
       <input
-        className="form-control"
+        className="search-input"
         type="search"
         value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="Name, email, ID, title, or description"
+        onChange={(event) =>
+          onChange(event.target.value)
+        }
+        placeholder="Search tickets, customers, subjects..."
         aria-label="Search tickets"
       />
     </div>

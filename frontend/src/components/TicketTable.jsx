@@ -1,15 +1,64 @@
-import TicketRow from './TicketRow';
+import TicketRow from "./TicketRow.jsx";
 
-export default function TicketTable({ tickets }) {
+export default function TicketTable({
+  tickets,
+  loading,
+  error
+}) {
+  if (loading) {
+    return (
+      <div className="table-state">
+        <div className="spinner" />
+        <p>Loading tickets...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="table-state error-state">
+        <strong>Could not load tickets</strong>
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   if (!tickets.length) {
-    return <div className="empty-state"><h2>No tickets found</h2><p className="mb-0">Try a different search or create a new support ticket.</p></div>;
+    return (
+      <div className="table-state">
+        <strong>No tickets found</strong>
+        <p>
+          Try changing the search or status filter.
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div className="table-responsive border rounded-3 bg-white">
-      <table className="table table-hover align-middle mb-0">
-        <thead><tr><th>ID</th><th>Customer</th><th>Issue</th><th>Status</th><th>Priority</th><th>Created</th></tr></thead>
-        <tbody>{tickets.map((ticket) => <TicketRow key={ticket.ticket_id} ticket={ticket} />)}</tbody>
+    <div className="ticket-table-wrap">
+      <table className="ticket-table">
+        <thead>
+          <tr>
+            <th>Ticket</th>
+            <th>Customer</th>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Sentiment</th>
+            <th>Team</th>
+            <th>Assigned to</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+
+        <tbody>
+    {tickets.map((ticket) => (
+        <TicketRow
+            key={ticket.ticket_id}
+            ticket={ticket}
+        />
+    ))}
+</tbody>
       </table>
     </div>
   );

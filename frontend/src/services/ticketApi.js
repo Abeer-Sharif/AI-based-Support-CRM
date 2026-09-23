@@ -1,53 +1,72 @@
-import axios from 'axios';
+import api from "./api.js";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001',
-  headers: { 'Content-Type': 'application/json' },
-});
-
-api.interceptors.request.use((config) => {
-  const session = JSON.parse(sessionStorage.getItem('supportdesk.session') || 'null');
-  if (session?.token) config.headers.Authorization = `Bearer ${session.token}`;
-  return config;
-});
-
-const messageFromError = (error) =>
-  error.response?.data?.message || error.message || 'Something went wrong. Please try again.';
+const getErrorMessage = (error) =>
+  error.response?.data?.message ||
+  error.message ||
+  "Something went wrong. Please try again.";
 
 export const ticketApi = {
   async getTickets(params = {}) {
     try {
-      const { data } = await api.get('/tickets', { params });
-      return data;
+      const { data } = await api.get(
+        "/tickets",
+        { params }
+      );
+
+      return Array.isArray(data)
+        ? data
+        : data.tickets || [];
     } catch (error) {
-      throw new Error(messageFromError(error));
+      throw new Error(getErrorMessage(error), {
+        cause: error
+      });
     }
   },
-  async getTicket(id) {
+
+  async getTicket(ticketId) {
     try {
-      const { data } = await api.get(`/tickets/${encodeURIComponent(id)}`);
+      const { data } = await api.get(
+        `/tickets/${encodeURIComponent(ticketId)}`
+      );
       return data;
     } catch (error) {
-      throw new Error(messageFromError(error));
+      throw new Error(getErrorMessage(error), {
+        cause: error
+      });
     }
   },
+
   async createTicket(ticket) {
     try {
-      const { data } = await api.post('/tickets', ticket);
+      const { data } = await api.post(
+        "/tickets",
+        ticket
+      );
       return data;
     } catch (error) {
-      throw new Error(messageFromError(error));
+      throw new Error(getErrorMessage(error), {
+        cause: error
+      });
     }
   },
-  async updateTicket(id, updates) {
+
+  async updateTicket(ticketId, updates) {
     try {
-      const { data } = await api.put(`/tickets/${encodeURIComponent(id)}`, updates);
+      const { data } = await api.put(
+        `/tickets/${encodeURIComponent(ticketId)}`,
+        updates
+      );
       return data;
     } catch (error) {
-      throw new Error(messageFromError(error));
+      throw new Error(getErrorMessage(error), {
+        cause: error
+      });
     }
   },
-  addNote(id, notes) {
-    return this.updateTicket(id, { notes });
-  },
+
+  async addNote(ticketId, noteText) {
+    return this.updateTicket(ticketId, {
+      notes: noteText
+    });
+  }
 };

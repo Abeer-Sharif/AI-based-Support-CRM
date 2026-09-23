@@ -1,13 +1,44 @@
-const formatDateTime = (date) => date ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(date)) : '';
+function formatDate(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(date);
+}
 
 export default function NoteList({ notes = [] }) {
-  if (!notes.length) return <p className="text-secondary mb-0">No notes have been added yet.</p>;
+  if (!notes.length) {
+    return (
+      <div className="empty-notes">
+        No internal notes yet.
+      </div>
+    );
+  }
+
   return (
-    <div className="vstack gap-3">
-      {notes.map((note) => (
-        <article className="note-item" key={note._id || `${note.noteText}-${note.created_at}`}>
-          <p className="mb-2 text-break">{note.noteText}</p>
-          <small className="text-secondary">{formatDateTime(note.created_at)}</small>
+    <div className="note-list">
+      {notes.map((note, index) => (
+        <article
+          className="note-item"
+          key={note._id || `${index}-${note.created_at}`}
+        >
+          <p>
+            {note.noteText ||
+              note.notes ||
+              note.text ||
+              ""}
+          </p>
+
+          <time>
+            {formatDate(
+              note.created_at ||
+                note.createdAt
+            )}
+          </time>
         </article>
       ))}
     </div>
