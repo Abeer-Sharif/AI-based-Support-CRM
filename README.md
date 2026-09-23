@@ -1,394 +1,340 @@
 # AI-Powered Support CRM
-<img width="1827" height="880" alt="image" src="https://github.com/user-attachments/assets/899837f8-b395-4060-9df8-d38c367649d0" />
 
-A full-stack customer support CRM built using the MERN stack with AI-powered ticket triage using a locally hosted Llama 3.2 3B model through Ollama.
+Deployed Link : https://ai-based-support-crm-1.onrender.com
 
-## Features
+A full-stack customer support management system with **Role-Based Access Control (RBAC), secure authentication, AI-powered ticket triage, automated team routing, and agent assignment**.
 
-### Core CRM Features
+The application helps support teams manage incoming customer requests while automatically analyzing each ticket for **category, priority, and sentiment**. Administrative actions such as viewing all tickets, changing ticket status, and assigning agents are protected through role-based authorization.
 
-- Create support tickets
-- Automatically generate unique ticket IDs
-- View all support tickets
-- Search tickets
-- Filter tickets by status
-- View detailed ticket information
-- Update ticket status
-- Add notes and comments
-- Store ticket data in MongoDB
+---
 
-### AI Ticket Triage
+## 📸 Preview
 
-When a new ticket is created, the backend sends the ticket subject and description to a locally hosted Llama 3.2 3B model through Ollama.
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/a569733f-db71-434f-8ac4-06058745e074"
+    alt="AI-Powered Support CRM Dashboard"
+    width="900"
+  />
+</p>
 
-The model automatically classifies the ticket into:
+<p align="center">
+  <img
+    src="https://github.com/user-attachments/assets/6744e5fd-4078-4335-952d-b844db051fc5"
+    alt="AI-Powered Support CRM Ticket Management"
+    width="900"
+  />
+</p>
 
-- Category
-- Priority
-- Sentiment
+---
 
-The AI response is validated before being stored in MongoDB.
+## ✨ Features
 
-The AI service includes:
+### Authentication & Authorization
 
-- Structured JSON output
-- Response validation
-- Request timeout handling
-- Graceful fallback when Ollama is unavailable
-- Isolated AI service architecture
+* JWT-based user authentication
+* Secure password hashing using bcrypt
+* Role-Based Access Control (RBAC)
+* Protected frontend routes
+* Protected backend APIs
+* Admin and Agent roles
 
-If the AI service fails, ticket creation continues using safe fallback values:
+### Ticket Management
 
-Category: Other
-Priority: Medium
-Sentiment: Neutral
+* Create support tickets
+* View ticket details
+* Search and filter tickets
+* Track ticket status
+* Add internal notes
+* Assign tickets to support agents
+* Organize tickets by support team
 
-This ensures that an AI failure does not interrupt the core ticket creation workflow.
+### Admin Controls
 
-## Tech Stack
+Admin users can:
 
-### Frontend
+* Access all support tickets
+* Update ticket status
+* Assign and reassign tickets to agents
+* Manage support agents and teams
+* View complete ticket information
+* Add internal notes to tickets
 
-- React
-- Vite
-- JavaScript
-- CSS
+Administrative operations are protected by backend authorization middleware and are not accessible to regular Agent users.
 
-### Backend
+### AI-Powered Ticket Triage
 
-- Node.js
-- Express.js
-- REST API
+When a new support ticket is created, the AI service analyzes its content and determines:
 
-### Database
-
-- MongoDB
-- Mongoose
-
-### AI
-
-- Ollama
-- Llama 3.2 3B
-
-## Project Structure
-
-## Project Structure
-
-<pre>
-support-crm/
-├── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── services/
-│   │   │   └── aiTriage.js
-│   │   └── ...
-│   ├── package.json
-│   └── ...
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── ...
-│   ├── package.json
-│   └── ...
-│
-├── .env.example
-├── .gitignore
-└── README.md
-</pre>
-## Prerequisites
-
-Before running the project, install:
-
-- Node.js
-- npm
-- MongoDB
-- Ollama
-- Git
-
-## Installation
-
-### 1. Clone the Repository
-
-git clone YOUR_GITHUB_REPOSITORY_URL
-cd support-crm
-
-### 2. Install Backend Dependencies
-
-cd backend
-npm install
-
-### 3. Install Frontend Dependencies
-
-Open a new terminal:
-
-cd frontend
-npm install
-
-## Environment Variables
-
-Create a .env file inside the backend directory.
+* **Category**
+* **Priority**
+* **Sentiment**
+* **Responsible team**
+* **Suitable ticket assignment**
 
 Example:
 
-PORT=5001
-DB_URL=your_mongodb_connection_string
+```json
+{
+  "category": "Technical",
+  "priority": "High",
+  "sentiment": "Negative",
+  "team": "Technical"
+}
+```
 
-A template is provided in .env.example.
+The classification results are used to automatically route incoming tickets to the appropriate support team and assist with agent assignment.
 
-Never commit your actual .env file or database credentials to GitHub.
+A fallback mechanism allows ticket creation to continue even when the AI service is temporarily unavailable.
 
-## Running the Application
+---
 
-The application requires:
+## 🧠 AI Ticket Workflow
 
-1. MongoDB
-2. Ollama
-3. Backend server
-4. Frontend development server
+```text
+Customer Creates Ticket
+        ↓
+Ticket Sent to Backend
+        ↓
+AI Triage Service
+        ↓
+┌───────────────────────────┐
+│ Category                  │
+│ Priority                  │
+│ Sentiment                 │
+│ Team                      │
+└───────────────────────────┘
+        ↓
+Automatic Routing / Assignment
+        ↓
+Ticket Stored in MongoDB
+        ↓
+Admin Review & Management
+```
 
-### 1. Start MongoDB
+---
 
-Make sure your MongoDB instance is running.
+## 🔐 Authorization Flow
 
-### 2. Start Ollama
+```text
+User Login
+    ↓
+Credentials Verified
+    ↓
+JWT Generated
+    ↓
+Token Sent With API Requests
+    ↓
+Authentication Middleware
+    ↓
+Role / Permission Check
+    ↓
+Authorized Resource Access
+```
 
-Pull the required model:
+---
 
-ollama pull llama3.2:3b
+## 🛠️ Tech Stack
 
-Run the model:
+### Frontend
 
-ollama run llama3.2:3b
+* React
+* Vite
+* React Router
+* Axios
+* Context API
+* CSS
 
-Ollama provides the local API used by the backend.
+### Backend
 
-The AI service communicates with:
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* JWT
+* bcrypt
+* Joi
 
-http://localhost:11434/api/generate
+### AI
 
-Keep Ollama running while testing AI ticket triage.
+* Ollama
+* Llama 3.2
 
-### 3. Start the Backend
+### Deployment
 
-From the backend directory:
+* Render
+* MongoDB Atlas
 
+---
+
+## 📂 Project Structure
+
+```text
+├── backend
+│   ├── src
+│   │   ├── controllers
+│   │   │   ├── auth.js
+│   │   │   └── ticket.js
+│   │   ├── models
+│   │   │   ├── notes.js
+│   │   │   ├── tickets.js
+│   │   │   └── user.js
+│   │   ├── routes
+│   │   │   ├── auth.js
+│   │   │   └── ticket.js
+│   │   └── services
+│   │       └── aiTriage.js
+│   ├── utils
+│   │   └── ticketId.js
+│   ├── middleware.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── schema.js
+│   └── server.js
+│
+├── frontend
+│   ├── src
+│   │   ├── components
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── NoteList.jsx
+│   │   │   ├── SearchBar.jsx
+│   │   │   ├── StatusBadge.jsx
+│   │   │   ├── StatusFilter.jsx
+│   │   │   ├── TicketRow.jsx
+│   │   │   └── TicketTable.jsx
+│   │   ├── context
+│   │   │   └── AuthContext.jsx
+│   │   ├── pages
+│   │   │   ├── Agents.jsx
+│   │   │   ├── CreateTicket.jsx
+│   │   │   ├── Home.jsx
+│   │   │   ├── Login.css
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   ├── Ticket.css
+│   │   │   └── TicketDetails.jsx
+│   │   ├── services
+│   │   │   ├── api.js
+│   │   │   ├── authApi.js
+│   │   │   ├── ticketApi.js
+│   │   │   └── userApi.js
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone <your-repository-url>
+cd support-crm
+```
+
+### 2. Install Backend Dependencies
+
+```bash
+cd backend
+npm install
+```
+
+### 3. Install Frontend Dependencies
+
+```bash
+cd ../frontend
+npm install
+```
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env` file inside the `backend` directory:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+PORT=5000
+```
+
+Create a `.env` file inside the `frontend` directory:
+
+```env
+VITE_API_URL=your_backend_api_url
+```
+
+Do not commit `.env` files or sensitive credentials to GitHub.
+
+---
+
+## ▶️ Run Locally
+
+### Start the Backend
+
+```bash
+cd backend
 npm start
+```
 
-The backend runs on:
+### Start the Frontend
 
-http://localhost:5001
+Open another terminal:
 
-### 4. Start the Frontend
-
-From the frontend directory:
-
+```bash
+cd frontend
 npm run dev
+```
 
-The frontend runs on:
+The frontend will run using the Vite development server and communicate with the configured backend API.
 
-http://localhost:5173
+---
 
-## AI Ticket Triage Flow
+## 📌 Ticket Classification
 
-User creates ticket
-        |
-        v
-React Frontend
-        |
-        v
-POST /tickets
-        |
-        v
-Express Controller
-        |
-        v
-aiTriage.js
-        |
-        v
-Ollama API
-        |
-        v
-Llama 3.2 3B
-        |
-        v
-Category + Priority + Sentiment
-        |
-        v
-Validation
-        |
-        v
-MongoDB
-        |
-        v
-Ticket displayed in frontend
+Supported ticket categories include:
 
-The frontend never communicates directly with the AI model.
+* Billing
+* Technical
+* Account
+* Shipping
+* Product
+* Other
 
-The backend handles communication with Ollama:
+### Priority Levels
 
-React -> Express -> AI Service -> Ollama
+* Low
+* Medium
+* High
 
-This keeps the AI logic isolated from the frontend and makes it easier to test or replace the model later.
+### Sentiment Levels
 
-## AI Failure Handling
+* Positive
+* Neutral
+* Negative
 
-AI is treated as an enhancement rather than a dependency for basic ticket creation.
+### Ticket Status
 
-If Ollama is unavailable, times out, or returns invalid output, the backend uses:
+* Open
+* In Progress
+* Closed
 
-Category: Other
-Priority: Medium
-Sentiment: Neutral
+---
 
-The ticket is still created successfully.
+## 👨‍💻 Author
 
-This ensures that AI failures do not interrupt the core CRM workflow.
+**Abeer Sharif**
 
-## Ticket Management
+B.E. Electronics and Computer Science Engineering
 
-Tickets support the following statuses:
+## ⭐ Support
 
-- Open
-- In Progress
-- Closed
-
-Users can:
-
-- Create tickets
-- View tickets
-- Search tickets
-- Filter tickets by status
-- View ticket details
-- Update ticket status
-- Add notes and comments
-
-## REST API
-
-The backend provides REST APIs for ticket management.
-
-### Create Ticket
-
-POST /tickets
-
-Creates a new ticket and performs AI triage.
-
-### Get Tickets
-
-GET /tickets
-
-Returns available tickets.
-
-### Get Ticket
-
-GET /tickets/:id
-
-Returns details for a specific ticket.
-
-### Update Ticket
-
-PUT /tickets/:id
-
-Updates ticket information such as status and notes.
-
-## AI Classification Example
-
-Example Ticket:
-
-Subject:
-I was charged twice for my subscription.
-
-Description:
-I purchased the subscription yesterday and my account shows two separate charges.
-
-Example AI Result:
-
-Category: Billing
-Priority: High
-Sentiment: Negative
-
-Example Test Cases:
-
-1. Duplicate charge
-   Category: Billing
-   Priority: High
-   Sentiment: Negative
-
-2. Password change
-   Category: Account
-   Priority: Low
-   Sentiment: Neutral
-
-3. Missing package
-   Category: Shipping
-   Priority: High
-   Sentiment: Negative
-
-## Testing
-
-The application was tested for:
-
-- Ticket creation
-- Ticket persistence
-- Ticket listing
-- Ticket search
-- Status filtering
-- Ticket updates
-- Notes and comments
-- AI ticket classification
-- Ollama availability
-- AI timeout handling
-- Invalid AI output handling
-- AI fallback handling
-- Frontend production build
-
-## Design Decisions
-
-### Local LLM
-
-Ollama with Llama 3.2 3B was selected to run the AI model locally without requiring an external AI API.
-
-### Isolated AI Service
-
-AI logic is implemented in a dedicated aiTriage.js service instead of placing model communication directly inside the ticket controller.
-
-This keeps the controller focused on ticket management and makes the AI component easier to test and replace.
-
-### Structured Output Validation
-
-The AI response is expected to contain:
-
-- category
-- priority
-- sentiment
-
-The backend validates these values against the allowed values before storing them in MongoDB.
-
-### Graceful Fallback
-
-AI classification should never prevent a support ticket from being created.
-
-If AI processing fails, safe fallback values are used and the ticket creation process continues normally.
-
-## Future Improvements
-
-Possible future improvements include:
-
-- Role-based access for customers, agents, and administrators
-- Agent assignment
-- Email notifications
-- Analytics dashboard
-- Multi-channel ticket ingestion
-- Attachment support
-- Cloud-hosted LLM support for production deployment
-- Automated response suggestions
-
-## Author
-
-Abeer Sharif
-
-Built as part of an AI + Technology Internship Assessment.
+If you found this project useful, consider giving the repository a ⭐.
