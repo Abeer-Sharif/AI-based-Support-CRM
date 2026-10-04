@@ -433,8 +433,6 @@ Used to automate backend tests for validation, querying, and ticket updates.
 
 * The AI triage service depends on the configured Ollama model being available.
 * AI classification may fall back to default values if the AI service is unavailable.
-* The deployed application requires the appropriate frontend and backend environment configuration.
-* Advanced authentication features and production-scale infrastructure are outside the scope of the technical assignment.
 
 ---
 
