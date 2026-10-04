@@ -48,6 +48,21 @@ The application helps support teams manage incoming customer requests while auto
 * Add internal notes
 * Assign tickets to support agents
 * Organize tickets by support team
+* Automatic creation and update timestamps
+
+### Support Ticket Dashboard
+
+The application supports the core requirements of the technical assignment:
+
+* Create tickets with title, description, customer email, priority, and status
+* Search tickets by title/customer information
+* Filter tickets by status
+* Sort tickets by creation date
+* View complete ticket details
+* Update ticket status and priority
+* Persist ticket updates in MongoDB
+* Display ticket summary information
+* Responsive interface for desktop and mobile
 
 ### Admin Controls
 
@@ -160,6 +175,11 @@ Authorized Resource Access
 * Ollama
 * Llama 3.2
 
+### Testing
+
+* Jest
+* Supertest
+
 ### Deployment
 
 * Render
@@ -184,6 +204,10 @@ Authorized Resource Access
 │   │   │   └── ticket.js
 │   │   └── services
 │   │       └── aiTriage.js
+│   ├── seed
+│   │   └── tickets.js
+│   ├── tests
+│   │   └── ticket.test.js
 │   ├── utils
 │   │   └── ticketId.js
 │   ├── middleware.js
@@ -261,9 +285,8 @@ npm install
 Create a `.env` file inside the `backend` directory:
 
 ```env
-MONGO_URI=your_mongodb_connection_string
+DB_URL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-PORT=5000
 ```
 
 Create a `.env` file inside the `frontend` directory:
@@ -298,6 +321,45 @@ The frontend will run using the Vite development server and communicate with the
 
 ---
 
+## 🌱 Seed Data
+
+The project includes a seed script containing **25 sample support tickets** with varied statuses, priorities, categories, teams, and sentiments.
+
+To populate the database:
+
+```bash
+cd backend
+npm run seed
+```
+
+The seed script clears existing tickets and inserts the 25 sample tickets.
+
+---
+
+## 🧪 Automated Tests
+
+The project includes automated backend tests using **Jest** and **Supertest**.
+
+The tests cover:
+
+1. **Validation**  
+   Verifies that a ticket with an invalid customer email is rejected.
+
+2. **Querying**  
+   Verifies that ticket search returns tickets matching the requested search term.
+
+3. **Ticket Updates**  
+   Verifies that a ticket can be updated to `Resolved` and that the change persists.
+
+Run the tests using:
+
+```bash
+cd backend
+npm test
+```
+
+---
+
 ## 📌 Ticket Classification
 
 Supported ticket categories include:
@@ -325,7 +387,82 @@ Supported ticket categories include:
 
 * Open
 * In Progress
-* Closed
+* Resolved
+
+---
+
+## 🧩 Technical Choices
+
+### React + Vite
+
+Used to build a responsive single-page frontend with reusable components and client-side routing.
+
+### Node.js + Express
+
+Used to provide REST API endpoints for authentication, ticket management, searching, filtering, and updates.
+
+### MongoDB + Mongoose
+
+Used for persistent storage of users, tickets, and internal notes.
+
+### Joi + Mongoose Validation
+
+Used to validate incoming data and maintain valid ticket values.
+
+### Ollama + Llama 3.2
+
+Used for AI-powered ticket classification and routing based on ticket content.
+
+### Jest + Supertest
+
+Used to automate backend tests for validation, querying, and ticket updates.
+
+---
+
+## ⚙️ Assumptions
+
+* Authentication and RBAC from the existing application are retained.
+* MongoDB is used as the persistent database.
+* AI-generated category, priority, and sentiment are used for automatic ticket classification.
+* Seed data is provided for demonstrating the ticket dashboard and testing functionality.
+* The application is intended to run locally using the documented setup instructions.
+
+---
+
+## ⚠️ Known Limitations
+
+* The AI triage service depends on the configured Ollama model being available.
+* AI classification may fall back to default values if the AI service is unavailable.
+* The deployed application requires the appropriate frontend and backend environment configuration.
+* Advanced authentication features and production-scale infrastructure are outside the scope of the technical assignment.
+
+---
+
+## 🤖 AI Tool Usage
+
+AI tools were used during development for:
+
+* Debugging and resolving implementation issues
+* Reviewing code structure
+* Assisting with API and test development
+* Generating and refining seed data
+* Improving documentation
+
+All generated code was reviewed, integrated, and tested as part of the application.
+
+---
+
+## ⏱️ Time Spent
+
+Approximately **6 hours**, including:
+
+* Backend/API implementation
+* Frontend integration
+* Database setup
+* Ticket management functionality
+* Testing
+* Seed data
+* Documentation
 
 ---
 
